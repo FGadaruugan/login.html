@@ -58,6 +58,10 @@
     .login{
       background:#2196f3;
     }
+
+    .forgot{
+      background:#ff9800;
+    }
   </style>
 </head>
 
@@ -81,6 +85,10 @@
     Login
   </button>
 
+  <button class="forgot" onclick="resetPassword()">
+    Forgot Password?
+  </button>
+
 </div>
 
 <script type="module">
@@ -91,7 +99,8 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -119,9 +128,14 @@ const db = getFirestore(app);
 
 window.register = async function () {
 
-  const username = document.getElementById("username").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+  const username =
+    document.getElementById("username").value.trim();
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
 
   if (!username || !email || !password) {
     alert("Бүх талбарыг бөглөнө үү!");
@@ -138,7 +152,11 @@ window.register = async function () {
       );
 
     await setDoc(
-      doc(db, "users", userCredential.user.uid),
+      doc(
+        db,
+        "users",
+        userCredential.user.uid
+      ),
       {
         username: username,
         email: email,
@@ -149,15 +167,20 @@ window.register = async function () {
     alert("Бүртгэл амжилттай!");
 
   } catch (e) {
+
     alert(e.message);
+
   }
 
 };
 
 window.login = async function () {
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
 
   if (!email || !password) {
     alert("Email болон Password оруулна уу!");
@@ -173,11 +196,33 @@ window.login = async function () {
         password
       );
 
-    const uid = userCredential.user.uid;
+    const uid =
+      userCredential.user.uid;
 
     window.location.href =
       "profile.html?uid=" + uid;
 
+  } catch (e) {
+
+    alert(e.message);
+
+  }
+
+};
+
+window.resetPassword = async function () {
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  if (!email) {
+    alert("Email оруулна уу!");
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    alert("Password reset email илгээгдлээ!");
   } catch (e) {
     alert(e.message);
   }
